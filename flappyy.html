@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flappy ball</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .hidden {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.8s ease;
+    }
+
+    .show {
+      opacity: 1;
+      transition: opacity 0.8s ease;
+    }
+
+    canvas.hidden {
+      display: block;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    canvas.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  </style>
+<style type="text/css" id="dcoder_stylesheet">@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 1rem;
+  background: linear-gradient(160deg, #0f0c29, #302b63, #24243e);
+  color: #00ffe1;
+  font-family: 'Orbitron', sans-serif;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  overflow: hidden;
+}
+
+/* Lobby container */
+.lobby {
+  width: 100%;
+  max-width: 400px;
+  padding: 2rem;
+}
+
+/* Transisi umum */
+.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s ease;
+}
+
+.show {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.8s ease;
+}
+
+/* Judul Game */
+.title {
+  font-size: 3rem;
+  text-shadow: 0 0 10px #00fff7, 0 0 20px #00fff7;
+}
+
+.title span {
+  color: #ff00c8;
+  text-shadow: 0 0 10px #ff00d4, 0 0 20px #ff00d4;
+}
+
+/* Tombol Layout */
+.menu-buttons {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* Tombol Style */
+.menu-buttons button {
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  border: none;
+  border-radius: 10px;
+  background: #00ffe1;
+  color: #000;
+  cursor: pointer;
+  box-shadow: 0 0 10px #00ffe1, 0 0 20px #00ffe1;
+  transition: 0.2s;
+  width: 200px;
+}
+
+/* Hover Tombol */
+.menu-buttons button:hover {
+  background: #00c2a8;
+  box-shadow: 0 0 15px #00fff7, 0 0 25px #00fff7;
+}
+
+/* Canvas Game */
+#game-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s ease;
+}
+
+#game-canvas.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Credit di bawah tombol */
+.credit {
+  margin-top: 2rem;
+  font-size: 0.75rem;
+  opacity: 0.7;
+  color: #00ffe1;
+  text-shadow: 0 0 5px #00ffe1, 0 0 10px #00ffe1;
+  font-family: monospace;
+}
+
+.credit a {
+  color: #00ffe1;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.credit a:hover {
+  text-decoration: underline;
+  text-shadow: 0 0 6px #00ffe1, 0 0 12px #00ffe1;
+}</style></head>
+<body>
+  <div class="lobby show">
+    <h1 class="title">FLAPPY <span>BALL</span></h1>
+
+    <div class="menu-buttons">
+      <button id="start-button">Start Game</button>
+      <button id="shop-button">Shop</button>
+      <button id="exit-button">Exit</button>
+    </div>
+
+    <!-- Credit -->
+    <div class="credit">
+      @magnifico🎩 ·
+      <a href="https://github.com/wndyykiboo" target="_blank">@wndyykiboo</a>
+    </div>
+  </div>
+
+  <canvas id="game-canvas" class="hidden"></canvas>
+
+  <script>
+    const lobby = document.querySelector(".lobby");
+    const canvas = document.getElementById("game-canvas");
+
+    document.getElementById("start-button").addEventListener("click", () => {
+      lobby.classList.remove("show");
+      lobby.classList.add("hidden");
+
+      setTimeout(() => {
+        lobby.style.display = "none";
+        canvas.classList.remove("hidden");
+        canvas.classList.add("show");
+
+        setTimeout(() => {
+          startGame();
+        }, 300);
+      }, 800);
+    });
+
+    document.getElementById("shop-button").addEventListener("click", () => {
+      alert("Shop isn't ready yet 🛒");
+    });
+
+    document.getElementById("exit-button").addEventListener("click", () => {
+      window.location.href = "https://www.google.com";
+    });
+
+    function startGame() {
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      let playerY = canvas.height / 2;
+      let velocity = 0;
+      const gravity = 0.5;
+
+      function gameLoop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = "#0f0c29";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        velocity += gravity;
+        playerY += velocity;
+
+        ctx.beginPath();
+        ctx.arc(100, playerY, 20, 0, Math.PI * 2);
+        ctx.fillStyle = "#00ffe1";
+        ctx.shadowColor = "#00ffe1";
+        ctx.shadowBlur = 20;
+        ctx.fill();
+        ctx.closePath();
+
+        requestAnimationFrame(gameLoop);
+      }
+
+      window.addEventListener("keydown", e => {
+        if (e.code === "Space") {
+          velocity = -8;
+        }
+      });
+
+      canvas.addEventListener("click", () => {
+        velocity = -8;
+      });
+
+      gameLoop();
+    }
+  </script>
+
+<script type="text/javascript" id="dcoder_script">function startGame() {
+  const canvas = document.getElementById("game-canvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  let playerY = canvas.height / 2;
+  let velocity = 0;
+  const gravity = 0.5;
+
+  const pipes = [];
+  const pipeWidth = 60;
+  let baseGap = 160; // awalnya medium-hard
+  let frame = 0;
+
+  let score = 0;
+  let pipeSpeed = 4;
+  let nextSpeedUpAt = 5;
+
+  let lastGapY = canvas.height / 2;
+
+  function spawnPipe() {
+    const gap = Math.max(baseGap - score * 2, 100); // makin tinggi skor → gap makin sempit
+
+    const minGapY = 60;
+    const maxGapY = canvas.height - gap - 60;
+
+    const maxDelta = 100 - Math.min(score * 1.5, 60); // makin tinggi skor → delta naik turun makin cepat
+
+    // 🎯 Zona atas, tengah, bawah
+    const zones = [
+      { name: "atas", min: minGapY, max: canvas.height / 3 },
+      { name: "tengah", min: canvas.height / 3, max: (canvas.height * 2) / 3 - gap },
+      { name: "bawah", min: (canvas.height * 2) / 3 - gap, max: maxGapY }
+    ];
+
+    // Acak zona & targetY
+    const chosenZone = zones[Math.floor(Math.random() * zones.length)];
+    const targetY = Math.random() * (chosenZone.max - chosenZone.min) + chosenZone.min;
+
+    // Smooth transition
+    let newGapY = lastGapY + Math.max(-maxDelta, Math.min(maxDelta, targetY - lastGapY));
+    newGapY = Math.max(minGapY, Math.min(maxGapY, newGapY));
+    lastGapY = newGapY;
+
+    pipes.push({
+      x: canvas.width,
+      top: newGapY,
+      bottom: newGapY + gap,
+      passed: false
+    });
+  }
+
+  function drawPlayer() {
+    ctx.beginPath();
+    ctx.arc(100, playerY, 20, 0, Math.PI * 2);
+    ctx.fillStyle = "#00ffe1";
+    ctx.shadowColor = "#00ffe1";
+    ctx.shadowBlur = 20;
+    ctx.fill();
+    ctx.closePath();
+  }
+
+  function drawPipes() {
+    ctx.fillStyle = "#ff00c8";
+    ctx.shadowColor = "#ff00c8";
+    ctx.shadowBlur = 15;
+    pipes.forEach(pipe => {
+      ctx.fillRect(pipe.x, 0, pipeWidth, pipe.top);
+      ctx.fillRect(pipe.x, pipe.bottom, pipeWidth, canvas.height - pipe.bottom);
+    });
+  }
+
+  function drawScore() {
+    ctx.font = "bold 24px Arial";
+    ctx.fillStyle = "#ffffff";
+    ctx.shadowColor = "#00ffe1";
+    ctx.shadowBlur = 15;
+    ctx.fillText(`Score: ${score}`, 20, 40);
+  }
+
+  function checkCollision() {
+    for (let pipe of pipes) {
+      if (
+        100 + 20 > pipe.x && 100 - 20 < pipe.x + pipeWidth &&
+        (playerY - 20 < pipe.top || playerY + 20 > pipe.bottom)
+      ) {
+        return true;
+      }
+    }
+    return playerY + 20 > canvas.height || playerY - 20 < 0;
+  }
+
+  function gameLoop() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#0f0c29";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    velocity += gravity;
+    playerY += velocity;
+
+    if (frame % 90 === 0) {
+      spawnPipe();
+    }
+
+    pipes.forEach(pipe => {
+      pipe.x -= pipeSpeed;
+
+      if (!pipe.passed && pipe.x + pipeWidth < 100 - 20) {
+        pipe.passed = true;
+        score++;
+
+        if (score >= nextSpeedUpAt) {
+          pipeSpeed += 0.5;
+          nextSpeedUpAt += 5;
+        }
+      }
+    });
+
+    drawPlayer();
+    drawPipes();
+    drawScore();
+
+    if (checkCollision()) {
+      alert(`Game Over!\nYour Score: ${score}`);
+      window.location.reload();
+      return;
+    }
+
+    frame++;
+    requestAnimationFrame(gameLoop);
+  }
+
+  window.addEventListener("keydown", e => {
+    if (e.code === "Space") velocity = -8;
+  });
+
+  canvas.addEventListener("click", () => {
+    velocity = -8;
+  });
+
+  gameLoop();
+}</script></body></html>
